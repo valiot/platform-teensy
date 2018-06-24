@@ -31,7 +31,7 @@ env = DefaultEnvironment()
 platform = env.PioPlatform()
 
 FRAMEWORK_DIR = platform.get_package_dir("framework-arduinoteensy")
-FRAMEWORK_VERSION = platform.get_package_version("framework-arduinoteensy")
+FRAMEWORK_VERSION = "1.141.0"
 assert isdir(FRAMEWORK_DIR)
 
 BUILTIN_USB_FLAGS = (
@@ -67,7 +67,7 @@ env.Append(
     ],
 
     CPPPATH=[
-        join(FRAMEWORK_DIR, "cores", env.BoardConfig().get("build.core"))
+        join(FRAMEWORK_DIR, ".", env.BoardConfig().get("build.core"))
     ],
 
     LIBSOURCE_DIRS=[
@@ -93,7 +93,7 @@ if env.BoardConfig().get("build.core") == "teensy":
     env.Append(CPPPATH=[join(FRAMEWORK_DIR, "cores")])
 
     # search relative includes in teensy directories
-    core_dir = join(FRAMEWORK_DIR, "cores", "teensy")
+    core_dir = join(FRAMEWORK_DIR, ".", "teensy")
     for item in sorted(listdir(core_dir)):
         file_path = join(core_dir, item)
         if not isfile(file_path):
@@ -110,7 +110,7 @@ if env.BoardConfig().get("build.core") == "teensy":
         with open(file_path, "w") as fp:
             fp.write(content)
 else:
-    env.Prepend(LIBPATH=[join(FRAMEWORK_DIR, "cores", "teensy3")])
+    env.Prepend(LIBPATH=[join(FRAMEWORK_DIR, ".", "teensy3")])
 
 #
 # Target: Build Core Library
@@ -132,7 +132,7 @@ if "build.variant" in env.BoardConfig():
 
 libs.append(env.BuildLibrary(
     join("$BUILD_DIR", "FrameworkArduino"),
-    join(FRAMEWORK_DIR, "cores", env.BoardConfig().get("build.core"))
+    join(FRAMEWORK_DIR, ".", env.BoardConfig().get("build.core"))
 ))
 
 env.Prepend(LIBS=libs)
