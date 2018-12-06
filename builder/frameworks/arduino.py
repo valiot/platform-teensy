@@ -118,19 +118,21 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
         CCFLAGS=[
             "-Os",  # optimize for size
             "-Wall",  # show warnings
+            "-Wextra",
             "-ffunction-sections",  # place each function in its own section
             "-fdata-sections",
             "-mthumb",
             "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
             "-nostdlib",
-            "-fsingle-precision-constant"
+            "-fsingle-precision-constant",
+            "-flto"
         ],
 
         CXXFLAGS=[
             "-fno-exceptions",
             "-felide-constructors",
             "-fno-rtti",
-            "-std=gnu++14",
+            "-std=gnu++17",
             "-Wno-error=narrowing"
         ],
 
@@ -144,6 +146,8 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
         LINKFLAGS=[
             "-Os",
             "-Wl,--gc-sections,--relax",
+            "-ffunction-sections",
+            "-flto",
             "-mthumb",
             "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
             "-Wl,--defsym=__rtc_localtime=$UNIX_TIME",

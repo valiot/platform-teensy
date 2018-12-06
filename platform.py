@@ -14,10 +14,22 @@
 
 from platform import system
 
+from platformio import exception, util
 from platformio.managers.platform import PlatformBase
+from platformio.util import get_systype
 
 
 class TeensyPlatform(PlatformBase):
+
+    @staticmethod
+    def _is_macos():
+        systype = util.get_systype()
+        return "darwin_x86_64" in systype
+
+    @staticmethod
+    def _is_linux():
+        systype = util.get_systype()
+        return "linux_x86_64" in systype
 
     def configure_default_packages(self, variables, targets):
         if variables.get("board"):
@@ -27,6 +39,10 @@ class TeensyPlatform(PlatformBase):
                 del_toolchain = "toolchain-atmelavr"
             if del_toolchain in self.packages:
                 del self.packages[del_toolchain]
+            if self._is_linux() and "toolchain-mac-arm-cortexm4f-eabi" in self.packages:
+                del self.packages['toolchain-mac-arm-cortexm4f-eabi']
+            if self._is_macos() and "toolchain-linux-arm-cortexm4f-eabi" in self.packages:
+                del self.packages['toolchain-linux-arm-cortexm4f-eabi']
 
         if "mbed" in variables.get("pioframework", []):
             self.packages["toolchain-gccarmnoneeabi"][
