@@ -41,8 +41,12 @@ class TeensyPlatform(PlatformBase):
                 del self.packages[del_toolchain]
             if self._is_linux() and "toolchain-mac-arm-cortexm4f-eabi" in self.packages:
                 del self.packages['toolchain-mac-arm-cortexm4f-eabi']
+            if self._is_linux() and "toolchain-gccarmnoneeabi" in self.packages:
+                del self.packages['toolchain-gccarmnoneeabi']
             if self._is_macos() and "toolchain-linux-arm-cortexm4f-eabi" in self.packages:
                 del self.packages['toolchain-linux-arm-cortexm4f-eabi']
+            if self._is_macos() and "toolchain-gccarmnoneeabi" in self.packages:
+                del self.packages['toolchain-gccarmnoneeabi']
 
         if "mbed" in variables.get("pioframework", []):
             self.packages["toolchain-gccarmnoneeabi"][
