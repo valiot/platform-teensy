@@ -31,7 +31,7 @@ env = DefaultEnvironment()
 platform = env.PioPlatform()
 
 FRAMEWORK_DIR = platform.get_package_dir("framework-arduinoteensy")
-FRAMEWORK_VERSION = "1.141.0"
+FRAMEWORK_VERSION = platform.get_package_version("framework-arduinoteensy")
 assert isdir(FRAMEWORK_DIR)
 
 BUILTIN_USB_FLAGS = (
@@ -80,7 +80,6 @@ if "BOARD" in env and env.BoardConfig().get("build.core") == "teensy":
         ASFLAGS=["-x", "assembler-with-cpp"],
 
         CCFLAGS=[
-            "-Os",  # optimize for size
             "-Wall",  # show warnings
             "-ffunction-sections",  # place each function in its own section
             "-fdata-sections",
@@ -99,7 +98,6 @@ if "BOARD" in env and env.BoardConfig().get("build.core") == "teensy":
         ],
 
         LINKFLAGS=[
-            "-Os",
             "-Wl,--gc-sections,--relax",
             "-mmcu=$BOARD_MCU"
         ],
@@ -116,7 +114,6 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
         ASFLAGS=["-x", "assembler-with-cpp"],
 
         CCFLAGS=[
-            "-Os",  # optimize for size
             "-Wall",  # show warnings
             "-Wextra",
             "-ffunction-sections",  # place each function in its own section
@@ -124,8 +121,7 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
             "-mthumb",
             "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
             "-nostdlib",
-            "-fsingle-precision-constant",
-            "-flto"
+            "-fsingle-precision-constant"
         ],
 
         CXXFLAGS=[
@@ -144,10 +140,8 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
         RANLIBFLAGS=["-s"],
 
         LINKFLAGS=[
-            "-Os",
             "-Wl,--gc-sections,--relax",
             "-ffunction-sections",
-            "-flto",
             "-mthumb",
             "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
             "-Wl,--defsym=__rtc_localtime=$UNIX_TIME",
@@ -169,6 +163,69 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
                 "-mfpu=fpv4-sp-d16"
             ]
         )
+
+    # Optimization
+    if "TEENSY_OPT_FASTER_LTO" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O2", "-flto", "-fno-fat-lto-objects"],
+            LINKFLAGS=["-O2", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+        )
+    elif "TEENSY_OPT_FAST" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O1"],
+            LINKFLAGS=["-O1"]
+        )
+    elif "TEENSY_OPT_FAST_LTO" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O1", "-flto", "-fno-fat-lto-objects"],
+            LINKFLAGS=["-O1", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+        )
+    elif "TEENSY_OPT_FASTEST" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O3"],
+            LINKFLAGS=["-O3"]
+        )
+    elif "TEENSY_OPT_FASTEST_LTO" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O3", "-flto", "-fno-fat-lto-objects"],
+            LINKFLAGS=["-O3", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+        )
+    elif "TEENSY_OPT_FASTEST_PURE_CODE" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O3", "-mpure-code"],
+            CPPDEFINES=["__PURE_CODE__"],
+            LINKFLAGS=["-O3", "-mpure-code"]
+        )
+    elif "TEENSY_OPT_FASTEST_PURE_CODE_LTO" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O3", "-mpure-code", "-flto", "-fno-fat-lto-objects"],
+            CPPDEFINES=["__PURE_CODE__"],
+            LINKFLAGS=["-O3", "-mpure-code", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+        )
+    elif "TEENSY_OPT_DEBUG" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-g", "-Og"],
+            LINKFLAGS=["-g", "-Og"]
+        )
+    elif "TEENSY_OPT_DEBUG_LTO" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-g", "-Og", "-flto", "-fno-fat-lto-objects"],
+            LINKFLAGS=["-g", "-Og", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+        )
+    elif "TEENSY_OPT_SMALLEST_CODE" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-Os", "--specs=nano.specs"],
+            LINKFLAGS=["-Os", "--specs=nano.specs"]
+        )
+    elif "TEENSY_OPT_SMALLEST_CODE_LTO" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-Os", "--specs=nano.specs", "-flto", "-fno-fat-lto-objects"],
+            LINKFLAGS=["-Os", "--specs=nano.specs", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+        )
+    # TEENSY_OPT_FASTER
+    else:
+        env.Append(CCFLAGS=["-O2"], LINKFLAGS=["-O2"])
+
 
 env.Append(
     ASFLAGS=env.get("CCFLAGS", [])[:]
