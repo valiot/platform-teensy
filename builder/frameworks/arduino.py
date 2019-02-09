@@ -31,7 +31,7 @@ env = DefaultEnvironment()
 platform = env.PioPlatform()
 
 FRAMEWORK_DIR = platform.get_package_dir("framework-arduinoteensy")
-FRAMEWORK_VERSION = platform.get_package_version("framework-arduinoteensy")
+FRAMEWORK_VERSION = "1.145.0"
 assert isdir(FRAMEWORK_DIR)
 
 BUILTIN_USB_FLAGS = (
