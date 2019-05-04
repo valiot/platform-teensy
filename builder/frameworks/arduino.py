@@ -160,6 +160,10 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
                 "-mfpu=fpv4-sp-d16"
             ],
 
+            CXXFLAGS=[
+                "-fno-unwind-tables"
+            ],
+
             LINKFLAGS=[
                 "-mfloat-abi=hard",
                 "-mfpu=fpv4-sp-d16"
@@ -216,13 +220,13 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
         )
     elif "TEENSY_OPT_SMALLEST_CODE" in env['CPPDEFINES']:
         env.Append(
-            CCFLAGS=["-Os", "--specs=nano.specs"],
-            LINKFLAGS=["-Os", "--specs=nano.specs"]
+            CCFLAGS=["-Os"],
+            LINKFLAGS=["-Os"]
         )
     elif "TEENSY_OPT_SMALLEST_CODE_LTO" in env['CPPDEFINES']:
         env.Append(
-            CCFLAGS=["-Os", "--specs=nano.specs", "-flto", "-fno-fat-lto-objects"],
-            LINKFLAGS=["-Os", "--specs=nano.specs", "-flto=" + `multiprocessing.cpu_count()`, "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+            CCFLAGS=["-Os", "-flto", "-fno-fat-lto-objects"],
+            LINKFLAGS=["-Os", "-flto=" + `multiprocessing.cpu_count()`, "-fno-fat-lto-objects", "-fuse-linker-plugin"]
         )
     # TEENSY_OPT_FASTER
     else:
