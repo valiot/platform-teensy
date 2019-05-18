@@ -65,6 +65,10 @@
     "toolchain-linux-arm-cortexm4f-eabi": {
       "type": "toolchain",
       "version": "https://github.com/tsandmann/armv7e-toolchain-linux.git"
+    },
+      "toolchain-win-arm-cortexm4f-eabi": {
+      "type": "toolchain",
+      "version": "https://github.com/tsandmann/armv7e-toolchain-win64.git"
     }
   }
 }

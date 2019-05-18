@@ -30,6 +30,10 @@ class TeensyPlatform(PlatformBase):
     def _is_linux():
         systype = util.get_systype()
         return "linux_x86_64" in systype
+    @staticmethod
+    def _is_windows():
+        systype = util.get_systype()
+        return "windows" in systype
 
     def configure_default_packages(self, variables, targets):
         if variables.get("board"):
@@ -41,11 +45,21 @@ class TeensyPlatform(PlatformBase):
                 del self.packages[del_toolchain]
             if self._is_linux() and "toolchain-mac-arm-cortexm4f-eabi" in self.packages:
                 del self.packages['toolchain-mac-arm-cortexm4f-eabi']
+            if self._is_linux() and "toolchain-win-arm-cortexm4f-eabi" in self.packages:
+                del self.packages['toolchain-win-arm-cortexm4f-eabi']
             if self._is_linux() and "toolchain-gccarmnoneeabi" in self.packages:
                 del self.packages['toolchain-gccarmnoneeabi']
             if self._is_macos() and "toolchain-linux-arm-cortexm4f-eabi" in self.packages:
                 del self.packages['toolchain-linux-arm-cortexm4f-eabi']
+            if self._is_macos() and "toolchain-win-arm-cortexm4f-eabi" in self.packages:
+                del self.packages['toolchain-win-arm-cortexm4f-eabi']
             if self._is_macos() and "toolchain-gccarmnoneeabi" in self.packages:
+                del self.packages['toolchain-gccarmnoneeabi']
+            if self._is_windows() and "toolchain-linux-arm-cortexm4f-eabi" in self.packages:
+                del self.packages['toolchain-linux-arm-cortexm4f-eabi']
+            if self._is_windows() and "toolchain-mac-arm-cortexm4f-eabi" in self.packages:
+                del self.packages['toolchain-mac-arm-cortexm4f-eabi']
+            if self._is_windows() and "toolchain-gccarmnoneeabi" in self.packages:
                 del self.packages['toolchain-gccarmnoneeabi']
 
         if "mbed" in variables.get("pioframework", []):
