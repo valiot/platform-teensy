@@ -174,7 +174,7 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
     if "TEENSY_OPT_FASTER_LTO" in env['CPPDEFINES']:
         env.Append(
             CCFLAGS=["-O2", "-flto", "-fno-fat-lto-objects"],
-            LINKFLAGS=["-O2", "-flto=" + `multiprocessing.cpu_count()`, "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+            LINKFLAGS=["-O2", "-flto=" + str(multiprocessing.cpu_count()), "-fno-fat-lto-objects", "-fuse-linker-plugin"]
         )
     elif "TEENSY_OPT_FAST" in env['CPPDEFINES']:
         env.Append(
@@ -184,7 +184,7 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
     elif "TEENSY_OPT_FAST_LTO" in env['CPPDEFINES']:
         env.Append(
             CCFLAGS=["-O1", "-flto", "-fno-fat-lto-objects"],
-            LINKFLAGS=["-O1", "-flto=" + `multiprocessing.cpu_count()`, "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+            LINKFLAGS=["-O1", "-flto=" + str(multiprocessing.cpu_count()), "-fno-fat-lto-objects", "-fuse-linker-plugin"]
         )
     elif "TEENSY_OPT_FASTEST" in env['CPPDEFINES']:
         env.Append(
@@ -194,7 +194,7 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
     elif "TEENSY_OPT_FASTEST_LTO" in env['CPPDEFINES']:
         env.Append(
             CCFLAGS=["-O3", "-flto", "-fno-fat-lto-objects"],
-            LINKFLAGS=["-O3", "-flto=" + `multiprocessing.cpu_count()`, "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+            LINKFLAGS=["-O3", "-flto=" + str(multiprocessing.cpu_count()), "-fno-fat-lto-objects", "-fuse-linker-plugin"]
         )
     elif "TEENSY_OPT_FASTEST_PURE_CODE" in env['CPPDEFINES']:
         env.Append(
@@ -206,7 +206,7 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
         env.Append(
             CCFLAGS=["-O3", "-mpure-code", "-flto", "-fno-fat-lto-objects"],
             CPPDEFINES=["__PURE_CODE__"],
-            LINKFLAGS=["-O3", "-mpure-code", "-flto=" + `multiprocessing.cpu_count()`, "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+            LINKFLAGS=["-O3", "-mpure-code", "-flto=" + str(multiprocessing.cpu_count()), "-fno-fat-lto-objects", "-fuse-linker-plugin"]
         )
     elif "TEENSY_OPT_DEBUG" in env['CPPDEFINES']:
         env.Append(
@@ -216,7 +216,7 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
     elif "TEENSY_OPT_DEBUG_LTO" in env['CPPDEFINES']:
         env.Append(
             CCFLAGS=["-g", "-Og", "-flto", "-fno-fat-lto-objects"],
-            LINKFLAGS=["-g", "-Og", "-flto=" + `multiprocessing.cpu_count()`, "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+            LINKFLAGS=["-g", "-Og", "-flto=" + str(multiprocessing.cpu_count()), "-fno-fat-lto-objects", "-fuse-linker-plugin"]
         )
     elif "TEENSY_OPT_SMALLEST_CODE" in env['CPPDEFINES']:
         env.Append(
@@ -226,7 +226,7 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
     elif "TEENSY_OPT_SMALLEST_CODE_LTO" in env['CPPDEFINES']:
         env.Append(
             CCFLAGS=["-Os", "-flto", "-fno-fat-lto-objects"],
-            LINKFLAGS=["-Os", "-flto=" + `multiprocessing.cpu_count()`, "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+            LINKFLAGS=["-Os", "-flto=" + str(multiprocessing.cpu_count()), "-fno-fat-lto-objects", "-fuse-linker-plugin"]
         )
     # TEENSY_OPT_FASTER
     else:
