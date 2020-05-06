@@ -58,17 +58,17 @@
       "optional": true,
       "version": "^1.63208.0"
     },
-    "toolchain-mac-arm-cortexm4f-eabi": {
+    "toolchain-arm-cortexm-mac": {
       "type": "toolchain",
-      "version": "https://github.com/tsandmann/armv7e-toolchain-mac.git"
+      "version": "https://github.com/tsandmann/arm-cortexm-toolchain-mac.git"
     },
-    "toolchain-linux-arm-cortexm4f-eabi": {
+    "toolchain-arm-cortexm-linux": {
       "type": "toolchain",
-      "version": "https://github.com/tsandmann/armv7e-toolchain-linux.git"
+      "version": "https://github.com/tsandmann/arm-cortexm-toolchain-linux.git"
     },
-      "toolchain-win-arm-cortexm4f-eabi": {
+    "toolchain-arm-cortexm-win64": {
       "type": "toolchain",
-      "version": "https://github.com/tsandmann/armv7e-toolchain-win64.git"
+      "version": "https://github.com/tsandmann/arm-cortexm-toolchain-win64.git"
     }
   }
 }

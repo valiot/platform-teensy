@@ -78,6 +78,19 @@ if env.BoardConfig().id_ in ("teensy35", "teensy36"):
         ]
     )
 
+if env.BoardConfig().id_ == "teensy40":
+    env.Append(
+        CCFLAGS=[
+            "-mfloat-abi=hard",
+            "-mfpu=fpv5-d16"
+        ],
+
+        LINKFLAGS=[
+            "-mfloat-abi=hard",
+            "-mfpu=fpv5-d16"
+        ]
+    )
+
 if "BOARD" in env:
     env.Append(
         CCFLAGS=[

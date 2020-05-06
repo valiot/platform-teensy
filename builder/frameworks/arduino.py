@@ -119,13 +119,12 @@ if "BOARD" in env and BUILD_CORE == "teensy":
         LIBS=["m"]
     )
 elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
-    env.Replace(
-        AR="arm-none-eabi-gcc-ar",
-        RANLIB="$AR"
-    )
-
     env.Append(
         ASFLAGS=["-x", "assembler-with-cpp"],
+
+        CFLAGS=[
+            "-Wno-old-style-declaration"
+        ],
 
         CCFLAGS=[
             "-Wall",  # show warnings

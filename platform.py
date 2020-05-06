@@ -43,22 +43,22 @@ class TeensyPlatform(PlatformBase):
                 del_toolchain = "toolchain-atmelavr"
             if del_toolchain in self.packages:
                 del self.packages[del_toolchain]
-            if self._is_linux() and "toolchain-mac-arm-cortexm4f-eabi" in self.packages:
-                del self.packages['toolchain-mac-arm-cortexm4f-eabi']
-            if self._is_linux() and "toolchain-win-arm-cortexm4f-eabi" in self.packages:
-                del self.packages['toolchain-win-arm-cortexm4f-eabi']
+            if self._is_linux() and "toolchain-arm-cortexm-mac" in self.packages:
+                del self.packages['toolchain-arm-cortexm-mac']
+            if self._is_linux() and "toolchain-arm-cortexm-win64" in self.packages:
+                del self.packages['toolchain-arm-cortexm-win64']
             if self._is_linux() and "toolchain-gccarmnoneeabi" in self.packages:
                 del self.packages['toolchain-gccarmnoneeabi']
-            if self._is_macos() and "toolchain-linux-arm-cortexm4f-eabi" in self.packages:
-                del self.packages['toolchain-linux-arm-cortexm4f-eabi']
-            if self._is_macos() and "toolchain-win-arm-cortexm4f-eabi" in self.packages:
-                del self.packages['toolchain-win-arm-cortexm4f-eabi']
+            if self._is_macos() and "toolchain-arm-cortexm-linux" in self.packages:
+                del self.packages['toolchain-arm-cortexm-linux']
+            if self._is_macos() and "toolchain-arm-cortexm-win64" in self.packages:
+                del self.packages['toolchain-arm-cortexm-win64']
             if self._is_macos() and "toolchain-gccarmnoneeabi" in self.packages:
                 del self.packages['toolchain-gccarmnoneeabi']
-            if self._is_windows() and "toolchain-linux-arm-cortexm4f-eabi" in self.packages:
-                del self.packages['toolchain-linux-arm-cortexm4f-eabi']
-            if self._is_windows() and "toolchain-mac-arm-cortexm4f-eabi" in self.packages:
-                del self.packages['toolchain-mac-arm-cortexm4f-eabi']
+            if self._is_windows() and "toolchain-arm-cortexm-linux" in self.packages:
+                del self.packages['toolchain-arm-cortexm-linux']
+            if self._is_windows() and "toolchain-arm-cortexm-mac" in self.packages:
+                del self.packages['toolchain-arm-cortexm-mac']
             if self._is_windows() and "toolchain-gccarmnoneeabi" in self.packages:
                 del self.packages['toolchain-gccarmnoneeabi']
 
