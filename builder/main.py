@@ -103,14 +103,14 @@ elif "BOARD" in env and board_config.get("build.core") == "teensy3":
 
 elif "BOARD" in env and board_config.get("build.core") == "teensy4":
     env.Replace(
-        AR="arm-cortexm7-eabi-gcc-ar",
-        AS="arm-cortexm7-eabi-as",
-        CC="arm-cortexm7-eabi-gcc",
-        CXX="arm-cortexm7-eabi-g++",
-        GDB="arm-cortexm7-eabi-gdb",
-        OBJCOPY="arm-cortexm7-eabi-objcopy",
-        RANLIB="arm-cortexm7-eabi-gcc-ar",
-        SIZETOOL="arm-cortexm7-eabi-size",
+        AR="arm-cortexm7f-eabi-gcc-ar",
+        AS="arm-cortexm7f-eabi-as",
+        CC="arm-cortexm7f-eabi-gcc",
+        CXX="arm-cortexm7f-eabi-g++",
+        GDB="arm-cortexm7f-eabi-gdb",
+        OBJCOPY="arm-cortexm7f-eabi-objcopy",
+        RANLIB="arm-cortexm7f-eabi-gcc-ar",
+        SIZETOOL="arm-cortexm7f-eabi-size",
         SIZEPRINTCMD='$SIZETOOL -B -d $SOURCES'
     )
 
