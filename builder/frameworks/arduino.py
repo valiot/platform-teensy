@@ -168,11 +168,12 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
         RANLIBFLAGS=["-s"],
 
         LINKFLAGS=[
+            "-ffunction-sections",
+            "-fdata-sections",
             "-Wl,--gc-sections,--relax",
             "-mthumb",
             "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
-            "-Wl,--defsym=__rtc_localtime=$UNIX_TIME",
-            "-nostdlib"
+            "-Wl,--defsym=__rtc_localtime=$UNIX_TIME"
         ],
 
         LIBS=["m", "stdc++"]
