@@ -25,23 +25,24 @@ env.Append(
 
     CCFLAGS=[
         "-Os",  # optimize for size
+        "-flto"
         "-Wall",  # show warnings
         "-Wextra",
         "-ffunction-sections",  # place each function in its own section
         "-fdata-sections",
         "-mthumb",
         "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
-        "-nostdlib",
-        "-fsingle-precision-constant",
-        "-flto"
+        "-fsingle-precision-constant"
     ],
 
     CXXFLAGS=[
         "-fno-exceptions",
+        "-fno-unwind-tables",
         "-felide-constructors",
         "-fno-rtti",
         "-std=gnu++17",
-        "-Wno-error=narrowing"
+        "-Wno-error=narrowing",
+        "-fpermissive"
     ],
 
     CPPDEFINES=[
@@ -53,13 +54,12 @@ env.Append(
 
     LINKFLAGS=[
         "-Os",
-        "-Wl,--gc-sections,--relax",
-        "-ffunction-sections",
         "-flto",
+        "-Wl,--gc-sections,--relax",
         "-mthumb",
         "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
         "-Wl,--defsym=__rtc_localtime=$UNIX_TIME",
-        "-fsingle-precision-constant"
+        "-nostdlib"
     ],
 
     LIBS=["m", "stdc++"]
