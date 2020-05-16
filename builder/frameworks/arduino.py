@@ -147,7 +147,8 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
             "-fdata-sections",
             "-mthumb",
             "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
-            "-fsingle-precision-constant"
+            "-fsingle-precision-constant",
+            "--specs=nano.specs"
         ],
 
         CXXFLAGS=[
@@ -171,9 +172,11 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
             "-ffunction-sections",
             "-fdata-sections",
             "-Wl,--gc-sections,--relax",
+            "-nostartfiles",
             "-mthumb",
             "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
-            "-Wl,--defsym=__rtc_localtime=$UNIX_TIME"
+            "-Wl,--defsym=__rtc_localtime=$UNIX_TIME",
+            "--specs=nano.specs"
         ],
 
         LIBS=["m", "stdc++"]
@@ -254,8 +257,8 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
         append_lto_options()
     elif "TEENSY_OPT_SMALLEST_CODE_LTO" in env['CPPDEFINES']:
         env.Append(
-            CCFLAGS=["-Os", "--specs=nano.specs"],
-            LINKFLAGS=["-Os", "--specs=nano.specs"]
+            CCFLAGS=["-Os"],
+            LINKFLAGS=["-Os"]
         )
         append_lto_options()
     elif "TEENSY_OPT_FASTER" in env['CPPDEFINES']:
@@ -265,8 +268,8 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
         )
     elif "TEENSY_OPT_SMALLEST_CODE" in env['CPPDEFINES']:
         env.Append(
-            CCFLAGS=["-Os", "--specs=nano.specs"],
-            LINKFLAGS=["-Os", "--specs=nano.specs"]
+            CCFLAGS=["-Os"],
+            LINKFLAGS=["-Os"]
         )
     # default profiles
     else:
