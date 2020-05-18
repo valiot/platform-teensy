@@ -175,12 +175,20 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
             "-nostartfiles",
             "-mthumb",
             "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
-            "-Wl,--defsym=__rtc_localtime=$UNIX_TIME",
             "--specs=nano.specs"
         ],
 
         LIBS=["m", "stdc++"]
     )
+    
+    if "SET_CURRENT_TIME" in env['CPPDEFINES']:
+        env.Append(
+            LINKFLAGS=["-Wl,--defsym=__rtc_localtime=$UNIX_TIME"]
+        )
+    else:
+        env.Append(
+            LINKFLAGS=["-Wl,--defsym=__rtc_localtime=0"]
+        )
 
     if not env.BoardConfig().get("build.ldscript", ""):
         env.Replace(LDSCRIPT_PATH=env.BoardConfig().get("build.arduino.ldscript", ""))
