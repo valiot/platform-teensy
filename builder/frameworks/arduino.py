@@ -48,7 +48,7 @@ env = DefaultEnvironment()
 platform = env.PioPlatform()
 
 FRAMEWORK_DIR = platform.get_package_dir("framework-arduinoteensy")
-FRAMEWORK_VERSION = "1.151.0"
+FRAMEWORK_VERSION = "1.152.0"
 BUILD_CORE = env.BoardConfig().get("build.core")
 
 assert isdir(FRAMEWORK_DIR)
@@ -193,9 +193,9 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
     if not env.BoardConfig().get("build.ldscript", ""):
         env.Replace(LDSCRIPT_PATH=env.BoardConfig().get("build.arduino.ldscript", ""))
 
-    if env.BoardConfig().id_ in ("teensy35", "teensy36", "teensy40"):
+    if env.BoardConfig().id_ in ("teensy35", "teensy36", "teensy40", "teensy41"):
         fpv_version = "4-sp"
-        if env.BoardConfig().id_ == "teensy40":
+        if env.BoardConfig().id_.startswith("teensy4"):
             fpv_version = "5"
 
         env.Append(
