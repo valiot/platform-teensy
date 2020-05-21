@@ -79,7 +79,7 @@ if env.BoardConfig().id_ in ("teensy35", "teensy36"):
         ]
     )
 
-if env.BoardConfig().id_ == "teensy40":
+if env.BoardConfig().id_ in ("teensy40", "teensy41"):
     env.Append(
         CCFLAGS=[
             "-mfloat-abi=hard",

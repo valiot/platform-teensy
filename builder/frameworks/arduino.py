@@ -305,7 +305,7 @@ env.Append(
 #        math_lib = math_lib % "M4lf"
 #    elif board in ("teensy30", "teensy31"):
 #        math_lib = math_lib % "M4l"
-#    elif board == "teensy40":
+#    elif board.startswith("teensy4"):
 #        math_lib = math_lib % "M7lfsp"
 #    else:
 #        math_lib = math_lib % "M0l"
