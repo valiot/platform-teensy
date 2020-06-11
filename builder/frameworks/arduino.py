@@ -153,7 +153,9 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
 
         CXXFLAGS=[
             "-fno-exceptions",
+            "-fno-non-call-exceptions",
             "-fno-unwind-tables",
+            "-fno-asynchronous-unwind-tables",
             "-felide-constructors",
             "-fno-rtti",
             "-std=gnu++17",
