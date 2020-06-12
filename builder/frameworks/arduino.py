@@ -137,7 +137,8 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
         ASFLAGS=["-x", "assembler-with-cpp"],
 
         CFLAGS=[
-            "-Wno-old-style-declaration"
+            "-Wno-old-style-declaration",
+            "-std=gnu18"
         ],
 
         CCFLAGS=[
