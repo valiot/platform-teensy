@@ -22,6 +22,7 @@ kinds of creative coding, interactive objects, spaces or physical experiences.
 http://arduino.cc/en/Reference/HomePage
 """
 
+from io import open
 from os import listdir
 from os.path import isdir, isfile, join
 
@@ -32,10 +33,14 @@ platform = env.PioPlatform()
 
 FRAMEWORK_DIR = platform.get_package_dir("framework-arduinoteensy")
 FRAMEWORK_VERSION = platform.get_package_version("framework-arduinoteensy")
+BUILD_CORE = env.BoardConfig().get("build.core")
+
 assert isdir(FRAMEWORK_DIR)
 
 BUILTIN_USB_FLAGS = (
     "USB_SERIAL",
+    "USB_DUAL_SERIAL",
+    "USB_TRIPLE_SERIAL",
     "USB_KEYBOARDONLY",
     "USB_TOUCHSCREEN",
     "USB_HID_TOUCHSCREEN",
@@ -60,14 +65,20 @@ BUILTIN_USB_FLAGS = (
 if not set(env.get("CPPDEFINES", [])) & set(BUILTIN_USB_FLAGS):
     env.Append(CPPDEFINES=["USB_SERIAL"])
 
+env.Replace(
+    SIZEPROGREGEXP=r"^(?:\.text|\.text\.progmem|\.text\.itcm|\.data)\s+([0-9]+).*",
+    SIZEDATAREGEXP=r"^(?:\.usbdescriptortable|\.dmabuffers|\.usbbuffers|\.data|\.bss|\.noinit|\.text\.itcm|\.text\.itcm\.padding)\s+([0-9]+).*"
+)
+
 env.Append(
     CPPDEFINES=[
         ("ARDUINO", 10805),
-        ("TEENSYDUINO", int(FRAMEWORK_VERSION.split(".")[1]))
+        ("TEENSYDUINO", int(FRAMEWORK_VERSION.split(".")[1])),
+        "CORE_TEENSY"
     ],
 
     CPPPATH=[
-        join(FRAMEWORK_DIR, "cores", env.BoardConfig().get("build.core"))
+        join(FRAMEWORK_DIR, "cores", BUILD_CORE)
     ],
 
     LIBSOURCE_DIRS=[
@@ -75,7 +86,7 @@ env.Append(
     ]
 )
 
-if "BOARD" in env and env.BoardConfig().get("build.core") == "teensy":
+if "BOARD" in env and BUILD_CORE == "teensy":
     env.Append(
         ASFLAGS=["-x", "assembler-with-cpp"],
 
@@ -90,7 +101,8 @@ if "BOARD" in env and env.BoardConfig().get("build.core") == "teensy":
         CXXFLAGS=[
             "-fno-exceptions",
             "-felide-constructors",
-            "-std=gnu++11"
+            "-std=gnu++11",
+            "-fpermissive"
         ],
 
         CPPDEFINES=[
@@ -106,7 +118,7 @@ if "BOARD" in env and env.BoardConfig().get("build.core") == "teensy":
 
         LIBS=["m"]
     )
-elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
+elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
     env.Replace(
         AR="arm-none-eabi-gcc-ar",
         RANLIB="$AR"
@@ -116,7 +128,6 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
         ASFLAGS=["-x", "assembler-with-cpp"],
 
         CCFLAGS=[
-            "-Os",  # optimize for size
             "-Wall",  # show warnings
             "-ffunction-sections",  # place each function in its own section
             "-fdata-sections",
@@ -131,7 +142,8 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
             "-felide-constructors",
             "-fno-rtti",
             "-std=gnu++14",
-            "-Wno-error=narrowing"
+            "-Wno-error=narrowing",
+            "-fpermissive"
         ],
 
         CPPDEFINES=[
@@ -142,7 +154,6 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
         RANLIBFLAGS=["-s"],
 
         LINKFLAGS=[
-            "-Os",
             "-Wl,--gc-sections,--relax",
             "-mthumb",
             "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
@@ -153,18 +164,103 @@ elif "BOARD" in env and env.BoardConfig().get("build.core") == "teensy3":
         LIBS=["m", "stdc++"]
     )
 
-    if env.BoardConfig().id_ in ("teensy35", "teensy36"):
+    if not env.BoardConfig().get("build.ldscript", ""):
+        env.Replace(LDSCRIPT_PATH=env.BoardConfig().get("build.arduino.ldscript", ""))
+
+    if env.BoardConfig().id_ in ("teensy35", "teensy36", "teensy40", "teensy41"):
+        fpv_version = "4-sp"
+        if env.BoardConfig().id_.startswith("teensy4"):
+            fpv_version = "5"
+
         env.Append(
             CCFLAGS=[
                 "-mfloat-abi=hard",
-                "-mfpu=fpv4-sp-d16"
+                "-mfpu=fpv%s-d16" % fpv_version
             ],
 
             LINKFLAGS=[
                 "-mfloat-abi=hard",
-                "-mfpu=fpv4-sp-d16"
+                "-mfpu=fpv%s-d16" % fpv_version
             ]
         )
+
+    # Optimization
+    if "TEENSY_OPT_FASTER_LTO" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O2", "-flto", "-fno-fat-lto-objects"],
+            LINKFLAGS=["-O2", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+        )
+    elif "TEENSY_OPT_FAST" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O1"],
+            LINKFLAGS=["-O1"]
+        )
+    elif "TEENSY_OPT_FAST_LTO" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O1", "-flto", "-fno-fat-lto-objects"],
+            LINKFLAGS=["-O1", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+        )
+    elif "TEENSY_OPT_FASTEST" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O3"],
+            LINKFLAGS=["-O3"]
+        )
+    elif "TEENSY_OPT_FASTEST_LTO" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O3", "-flto", "-fno-fat-lto-objects"],
+            LINKFLAGS=["-O3", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+        )
+    elif "TEENSY_OPT_FASTEST_PURE_CODE" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O3", "-mpure-code"],
+            CPPDEFINES=["__PURE_CODE__"],
+            LINKFLAGS=["-O3", "-mpure-code"]
+        )
+    elif "TEENSY_OPT_FASTEST_PURE_CODE_LTO" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O3", "-mpure-code", "-flto", "-fno-fat-lto-objects"],
+            CPPDEFINES=["__PURE_CODE__"],
+            LINKFLAGS=["-O3", "-mpure-code", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+        )
+    elif "TEENSY_OPT_DEBUG" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-g", "-Og"],
+            LINKFLAGS=["-g", "-Og"]
+        )
+    elif "TEENSY_OPT_DEBUG_LTO" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-g", "-Og", "-flto", "-fno-fat-lto-objects"],
+            LINKFLAGS=["-g", "-Og", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+        )
+    elif "TEENSY_OPT_SMALLEST_CODE_LTO" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-Os", "--specs=nano.specs", "-flto", "-fno-fat-lto-objects"],
+            LINKFLAGS=["-Os", "--specs=nano.specs", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+        )
+    elif "TEENSY_OPT_FASTER" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-O2"],
+            LINKFLAGS=["-O2"]
+        )
+    elif "TEENSY_OPT_SMALLEST_CODE" in env['CPPDEFINES']:
+        env.Append(
+            CCFLAGS=["-Os", "--specs=nano.specs"],
+            LINKFLAGS=["-Os", "--specs=nano.specs"]
+        )
+    # default profiles
+    else:
+        # for Teensy LC => TEENSY_OPT_SMALLEST_CODE
+        if env.BoardConfig().id_ == "teensylc":
+            env.Append(
+                CCFLAGS=["-Os", "--specs=nano.specs"],
+                LINKFLAGS=["-Os", "--specs=nano.specs"]
+            )
+        # for others => TEENSY_OPT_FASTER
+        else:
+            env.Append(
+                CCFLAGS=["-O2"],
+                LINKFLAGS=["-O2"]
+            )
 
 env.Append(
     ASFLAGS=env.get("CCFLAGS", [])[:]
@@ -177,13 +273,15 @@ if "cortex-m" in env.BoardConfig().get("build.cpu", ""):
         math_lib = math_lib % "M4lf"
     elif board in ("teensy30", "teensy31"):
         math_lib = math_lib % "M4l"
+    elif board.startswith("teensy4"):
+        math_lib = math_lib % "M7lfsp"
     else:
         math_lib = math_lib % "M0l"
 
     env.Prepend(LIBS=[math_lib])
 
 # Teensy 2.x Core
-if env.BoardConfig().get("build.core") == "teensy":
+if BUILD_CORE == "teensy":
     env.Append(CPPPATH=[join(FRAMEWORK_DIR, "cores")])
 
     # search relative includes in teensy directories
@@ -194,17 +292,17 @@ if env.BoardConfig().get("build.core") == "teensy":
             continue
         content = None
         content_changed = False
-        with open(file_path) as fp:
+        with open(file_path, encoding="latin-1") as fp:
             content = fp.read()
             if '#include "../' in content:
                 content_changed = True
                 content = content.replace('#include "../', '#include "')
         if not content_changed:
             continue
-        with open(file_path, "w") as fp:
+        with open(file_path, "w", encoding="latin-1") as fp:
             fp.write(content)
 else:
-    env.Prepend(LIBPATH=[join(FRAMEWORK_DIR, "cores", "teensy3")])
+    env.Prepend(LIBPATH=[join(FRAMEWORK_DIR, "cores", BUILD_CORE)])
 
 #
 # Target: Build Core Library
@@ -226,7 +324,7 @@ if "build.variant" in env.BoardConfig():
 
 libs.append(env.BuildLibrary(
     join("$BUILD_DIR", "FrameworkArduino"),
-    join(FRAMEWORK_DIR, "cores", env.BoardConfig().get("build.core"))
+    join(FRAMEWORK_DIR, "cores", BUILD_CORE)
 ))
 
 env.Prepend(LIBS=libs)
