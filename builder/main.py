@@ -224,7 +224,7 @@ elif upload_protocol == "teensy-cli":
     )
     upload_actions = [
         env.VerboseAction("$REBOOTER -s", "Rebooting..."),
-        env.VerboseAction("$UPLOADCMD", "Uploading $SOURCE")
+        env.VerboseAction("$UPLOADCMD || $UPLOADCMD", "Uploading $SOURCE")
     ]
 
 elif upload_protocol == "teensy-gui":
