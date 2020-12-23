@@ -68,9 +68,17 @@ env.Append(
 
 if env.BoardConfig().id_ in ("teensy35", "teensy36"):
     env.Append(
+        CFLAGS=[
+            "-std=gnu17"
+        ],
+
         CCFLAGS=[
             "-mfloat-abi=hard",
             "-mfpu=fpv4-sp-d16"
+        ],
+
+        CXXFLAGS=[
+            "-std=gnu++17"
         ],
 
         LINKFLAGS=[
@@ -81,9 +89,17 @@ if env.BoardConfig().id_ in ("teensy35", "teensy36"):
 
 if env.BoardConfig().id_ in ("teensy40", "teensy41"):
     env.Append(
+        CFLAGS=[
+            "-std=gnu17"
+        ],
+
         CCFLAGS=[
             "-mfloat-abi=hard",
             "-mfpu=fpv5-d16"
+        ],
+
+        CXXFLAGS=[
+            "-std=gnu++17"
         ],
 
         LINKFLAGS=[

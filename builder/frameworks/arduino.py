@@ -140,7 +140,7 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
 
         CFLAGS=[
             "-Wno-old-style-declaration",
-            "-std=gnu18"
+            "-std=gnu17"
         ],
 
         CCFLAGS=[
