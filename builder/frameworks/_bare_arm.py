@@ -25,19 +25,24 @@ env.Append(
 
     CCFLAGS=[
         "-Os",  # optimize for size
+        "-flto"
         "-Wall",  # show warnings
+        "-Wextra",
         "-ffunction-sections",  # place each function in its own section
         "-fdata-sections",
         "-mthumb",
-        "-nostdlib",
+        "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
         "-fsingle-precision-constant"
     ],
 
     CXXFLAGS=[
         "-fno-exceptions",
+        "-fno-unwind-tables",
         "-felide-constructors",
         "-fno-rtti",
-        "-std=gnu++14"
+        "-std=gnu++17",
+        "-Wno-error=narrowing",
+        "-fpermissive"
     ],
 
     CPPDEFINES=[
@@ -49,10 +54,13 @@ env.Append(
 
     LINKFLAGS=[
         "-Os",
+        "-flto",
+        "-ffunction-sections",
+        "-fdata-sections",
         "-Wl,--gc-sections,--relax",
         "-mthumb",
-        "-Wl,--defsym=__rtc_localtime=$UNIX_TIME",
-        "-fsingle-precision-constant"
+        "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
+        "-Wl,--defsym=__rtc_localtime=$UNIX_TIME"
     ],
 
     LIBS=["m", "stdc++"]
@@ -60,14 +68,43 @@ env.Append(
 
 if env.BoardConfig().id_ in ("teensy35", "teensy36"):
     env.Append(
+        CFLAGS=[
+            "-std=gnu17"
+        ],
+
         CCFLAGS=[
             "-mfloat-abi=hard",
             "-mfpu=fpv4-sp-d16"
         ],
 
+        CXXFLAGS=[
+            "-std=gnu++17"
+        ],
+
         LINKFLAGS=[
             "-mfloat-abi=hard",
             "-mfpu=fpv4-sp-d16"
+        ]
+    )
+
+if env.BoardConfig().id_ in ("teensy40", "teensy41"):
+    env.Append(
+        CFLAGS=[
+            "-std=gnu17"
+        ],
+
+        CCFLAGS=[
+            "-mfloat-abi=hard",
+            "-mfpu=fpv5-d16"
+        ],
+
+        CXXFLAGS=[
+            "-std=gnu++17"
+        ],
+
+        LINKFLAGS=[
+            "-mfloat-abi=hard",
+            "-mfpu=fpv5-d16"
         ]
     )
 

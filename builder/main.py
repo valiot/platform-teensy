@@ -88,19 +88,33 @@ if "BOARD" in env and board_config.get("build.core") == "teensy":
     if not env.get("PIOFRAMEWORK"):
         env.SConscript("frameworks/_bare_avr.py")
 
-elif "BOARD" in env and board_config.get("build.core") in ("teensy3", "teensy4"):
+elif "BOARD" in env and board_config.get("build.core") == "teensy3":
     env.Replace(
-        AR="arm-none-eabi-ar",
-        AS="arm-none-eabi-as",
-        CC="arm-none-eabi-gcc",
-        CXX="arm-none-eabi-g++",
-        GDB="arm-none-eabi-gdb",
-        OBJCOPY="arm-none-eabi-objcopy",
-        RANLIB="arm-none-eabi-gcc-ranlib",
-        SIZETOOL="arm-none-eabi-size",
+        AR="arm-cortexm4f-eabi-gcc-ar",
+        AS="arm-cortexm4f-eabi-as",
+        CC="arm-cortexm4f-eabi-gcc",
+        CXX="arm-cortexm4f-eabi-g++",
+        GDB="arm-cortexm4f-eabi-gdb",
+        OBJCOPY="arm-cortexm4f-eabi-objcopy",
+        RANLIB="arm-cortexm4f-eabi-gcc-ar",
+        SIZETOOL="arm-cortexm4f-eabi-size",
         SIZEPRINTCMD='$SIZETOOL -B -d $SOURCES'
     )
 
+elif "BOARD" in env and board_config.get("build.core") == "teensy4":
+    env.Replace(
+        AR="arm-cortexm7f-eabi-gcc-ar",
+        AS="arm-cortexm7f-eabi-as",
+        CC="arm-cortexm7f-eabi-gcc",
+        CXX="arm-cortexm7f-eabi-g++",
+        GDB="arm-cortexm7f-eabi-gdb",
+        OBJCOPY="arm-cortexm7f-eabi-objcopy",
+        RANLIB="arm-cortexm7f-eabi-gcc-ar",
+        SIZETOOL="arm-cortexm7f-eabi-size",
+        SIZEPRINTCMD='$SIZETOOL -B -d $SOURCES'
+    )
+
+if "BOARD" in env and board_config.get("build.core") in ("teensy3", "teensy4"):
     env.Append(
         BUILDERS=dict(
             ElfToBin=Builder(
@@ -211,7 +225,7 @@ elif upload_protocol == "teensy-cli":
     )
     upload_actions = [
         env.VerboseAction("$REBOOTER -s", "Rebooting..."),
-        env.VerboseAction("$UPLOADCMD", "Uploading $SOURCE")
+        env.VerboseAction("$UPLOADCMD || $UPLOADCMD", "Uploading $SOURCE")
     ]
 
 elif upload_protocol == "teensy-gui":

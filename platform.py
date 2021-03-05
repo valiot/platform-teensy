@@ -14,10 +14,26 @@
 
 from platform import system
 
+from platformio import exception, util
 from platformio.managers.platform import PlatformBase
+from platformio.util import get_systype
 
 
 class TeensyPlatform(PlatformBase):
+
+    @staticmethod
+    def _is_macos():
+        systype = util.get_systype()
+        return "darwin_x86_64" in systype
+
+    @staticmethod
+    def _is_linux():
+        systype = util.get_systype()
+        return "linux_x86_64" in systype
+    @staticmethod
+    def _is_windows():
+        systype = util.get_systype()
+        return "windows" in systype
 
     def configure_default_packages(self, variables, targets):
         if variables.get("board"):
@@ -27,6 +43,24 @@ class TeensyPlatform(PlatformBase):
                 del_toolchain = "toolchain-atmelavr"
             if del_toolchain in self.packages:
                 del self.packages[del_toolchain]
+            if self._is_linux() and "toolchain-arm-cortexm-mac" in self.packages:
+                del self.packages['toolchain-arm-cortexm-mac']
+            if self._is_linux() and "toolchain-arm-cortexm-win64" in self.packages:
+                del self.packages['toolchain-arm-cortexm-win64']
+            if self._is_linux() and "toolchain-gccarmnoneeabi" in self.packages:
+                del self.packages['toolchain-gccarmnoneeabi']
+            if self._is_macos() and "toolchain-arm-cortexm-linux" in self.packages:
+                del self.packages['toolchain-arm-cortexm-linux']
+            if self._is_macos() and "toolchain-arm-cortexm-win64" in self.packages:
+                del self.packages['toolchain-arm-cortexm-win64']
+            if self._is_macos() and "toolchain-gccarmnoneeabi" in self.packages:
+                del self.packages['toolchain-gccarmnoneeabi']
+            if self._is_windows() and "toolchain-arm-cortexm-linux" in self.packages:
+                del self.packages['toolchain-arm-cortexm-linux']
+            if self._is_windows() and "toolchain-arm-cortexm-mac" in self.packages:
+                del self.packages['toolchain-arm-cortexm-mac']
+            if self._is_windows() and "toolchain-gccarmnoneeabi" in self.packages:
+                del self.packages['toolchain-gccarmnoneeabi']
 
         if "mbed" in variables.get("pioframework", []):
             self.packages["toolchain-gccarmnoneeabi"][

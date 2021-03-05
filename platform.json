@@ -41,13 +41,13 @@
       "type": "toolchain",
       "optional": false,
       "owner": "platformio",
-      "version": "~1.50401.0"
+      "version": "~1.70201.0"
     },
     "framework-arduinoteensy": {
       "type": "framework",
       "optional": true,
       "owner": "platformio",
-      "version": "https://github.com/valiot/platform-teensy.git"
+      "version": "https://github.com/valiot/cores.git"
     },
     "framework-mbed": {
       "type": "framework",
@@ -66,6 +66,21 @@
       "optional": true,
       "owner": "platformio",
       "version": "^1.63208.0"
+    },
+    "toolchain-arm-cortexm-mac": {
+      "type": "toolchain",
+      "owner": "tsandmann",
+      "version": "https://github.com/tsandmann/arm-cortexm-toolchain-mac.git"
+    },
+    "toolchain-arm-cortexm-linux": {
+      "type": "toolchain",
+      "owner": "tsandmann",
+      "version": "https://github.com/tsandmann/arm-cortexm-toolchain-linux.git"
+    },
+    "toolchain-arm-cortexm-win64": {
+      "type": "toolchain",
+      "owner": "tsandmann",
+      "version": "https://github.com/tsandmann/arm-cortexm-toolchain-win64.git"
     }
   }
 }

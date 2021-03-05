@@ -25,8 +25,24 @@ http://arduino.cc/en/Reference/HomePage
 from io import open
 from os import listdir
 from os.path import isdir, isfile, join
+from platformio.util import get_systype
 
 from SCons.Script import DefaultEnvironment
+
+import multiprocessing
+
+
+def append_lto_options():
+    if "windows" in get_systype():
+        env.Append(
+            CCFLAGS=["-flto"],
+            LINKFLAGS=["-flto"]
+        )
+    else:
+        env.Append(
+            CCFLAGS=["-flto"],
+            LINKFLAGS=["-flto=" + str(multiprocessing.cpu_count())]
+        )
 
 env = DefaultEnvironment()
 platform = env.PioPlatform()
@@ -78,7 +94,7 @@ env.Append(
     ],
 
     CPPPATH=[
-        join(FRAMEWORK_DIR, "cores", BUILD_CORE)
+        join(FRAMEWORK_DIR, ".", BUILD_CORE)
     ],
 
     LIBSOURCE_DIRS=[
@@ -119,29 +135,33 @@ if "BOARD" in env and BUILD_CORE == "teensy":
         LIBS=["m"]
     )
 elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
-    env.Replace(
-        AR="arm-none-eabi-gcc-ar",
-        RANLIB="$AR"
-    )
-
     env.Append(
         ASFLAGS=["-x", "assembler-with-cpp"],
 
+        CFLAGS=[
+            "-Wno-old-style-declaration",
+            "-std=gnu17"
+        ],
+
         CCFLAGS=[
             "-Wall",  # show warnings
+            "-Wextra",
             "-ffunction-sections",  # place each function in its own section
             "-fdata-sections",
             "-mthumb",
             "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
-            "-nostdlib",
-            "-fsingle-precision-constant"
+            "-fsingle-precision-constant",
+            "--specs=nano.specs"
         ],
 
         CXXFLAGS=[
             "-fno-exceptions",
+            "-fno-non-call-exceptions",
+            "-fno-unwind-tables",
+            "-fno-asynchronous-unwind-tables",
             "-felide-constructors",
             "-fno-rtti",
-            "-std=gnu++14",
+            "-std=gnu++17",
             "-Wno-error=narrowing",
             "-fpermissive"
         ],
@@ -154,15 +174,26 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
         RANLIBFLAGS=["-s"],
 
         LINKFLAGS=[
+            "-ffunction-sections",
+            "-fdata-sections",
             "-Wl,--gc-sections,--relax",
+            "-nostartfiles",
             "-mthumb",
             "-mcpu=%s" % env.BoardConfig().get("build.cpu"),
-            "-Wl,--defsym=__rtc_localtime=$UNIX_TIME",
-            "-fsingle-precision-constant"
+            "--specs=nano.specs"
         ],
 
         LIBS=["m", "stdc++"]
     )
+    
+    if "SET_CURRENT_TIME" in env['CPPDEFINES']:
+        env.Append(
+            LINKFLAGS=["-Wl,--defsym=__rtc_localtime=$UNIX_TIME"]
+        )
+    else:
+        env.Append(
+            LINKFLAGS=["-Wl,--defsym=__rtc_localtime=0"]
+        )
 
     if not env.BoardConfig().get("build.ldscript", ""):
         env.Replace(LDSCRIPT_PATH=env.BoardConfig().get("build.arduino.ldscript", ""))
@@ -187,9 +218,10 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
     # Optimization
     if "TEENSY_OPT_FASTER_LTO" in env['CPPDEFINES']:
         env.Append(
-            CCFLAGS=["-O2", "-flto", "-fno-fat-lto-objects"],
-            LINKFLAGS=["-O2", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+            CCFLAGS=["-O2"],
+            LINKFLAGS=["-O2"]
         )
+        append_lto_options()
     elif "TEENSY_OPT_FAST" in env['CPPDEFINES']:
         env.Append(
             CCFLAGS=["-O1"],
@@ -197,9 +229,10 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
         )
     elif "TEENSY_OPT_FAST_LTO" in env['CPPDEFINES']:
         env.Append(
-            CCFLAGS=["-O1", "-flto", "-fno-fat-lto-objects"],
-            LINKFLAGS=["-O1", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+            CCFLAGS=["-O1"],
+            LINKFLAGS=["-O1"]
         )
+        append_lto_options()
     elif "TEENSY_OPT_FASTEST" in env['CPPDEFINES']:
         env.Append(
             CCFLAGS=["-O3"],
@@ -207,9 +240,10 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
         )
     elif "TEENSY_OPT_FASTEST_LTO" in env['CPPDEFINES']:
         env.Append(
-            CCFLAGS=["-O3", "-flto", "-fno-fat-lto-objects"],
-            LINKFLAGS=["-O3", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+            CCFLAGS=["-O3"],
+            LINKFLAGS=["-O3"]
         )
+        append_lto_options()
     elif "TEENSY_OPT_FASTEST_PURE_CODE" in env['CPPDEFINES']:
         env.Append(
             CCFLAGS=["-O3", "-mpure-code"],
@@ -218,10 +252,11 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
         )
     elif "TEENSY_OPT_FASTEST_PURE_CODE_LTO" in env['CPPDEFINES']:
         env.Append(
-            CCFLAGS=["-O3", "-mpure-code", "-flto", "-fno-fat-lto-objects"],
+            CCFLAGS=["-O3", "-mpure-code"],
             CPPDEFINES=["__PURE_CODE__"],
-            LINKFLAGS=["-O3", "-mpure-code", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+            LINKFLAGS=["-O3", "-mpure-code"]
         )
+        append_lto_options()
     elif "TEENSY_OPT_DEBUG" in env['CPPDEFINES']:
         env.Append(
             CCFLAGS=["-g", "-Og"],
@@ -229,14 +264,16 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
         )
     elif "TEENSY_OPT_DEBUG_LTO" in env['CPPDEFINES']:
         env.Append(
-            CCFLAGS=["-g", "-Og", "-flto", "-fno-fat-lto-objects"],
-            LINKFLAGS=["-g", "-Og", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+            CCFLAGS=["-g", "-Og"],
+            LINKFLAGS=["-g", "-Og"]
         )
+        append_lto_options()
     elif "TEENSY_OPT_SMALLEST_CODE_LTO" in env['CPPDEFINES']:
         env.Append(
-            CCFLAGS=["-Os", "--specs=nano.specs", "-flto", "-fno-fat-lto-objects"],
-            LINKFLAGS=["-Os", "--specs=nano.specs", "-flto", "-fno-fat-lto-objects", "-fuse-linker-plugin"]
+            CCFLAGS=["-Os"],
+            LINKFLAGS=["-Os"]
         )
+        append_lto_options()
     elif "TEENSY_OPT_FASTER" in env['CPPDEFINES']:
         env.Append(
             CCFLAGS=["-O2"],
@@ -244,8 +281,8 @@ elif "BOARD" in env and BUILD_CORE in ("teensy3", "teensy4"):
         )
     elif "TEENSY_OPT_SMALLEST_CODE" in env['CPPDEFINES']:
         env.Append(
-            CCFLAGS=["-Os", "--specs=nano.specs"],
-            LINKFLAGS=["-Os", "--specs=nano.specs"]
+            CCFLAGS=["-Os"],
+            LINKFLAGS=["-Os"]
         )
     # default profiles
     else:
@@ -266,26 +303,26 @@ env.Append(
     ASFLAGS=env.get("CCFLAGS", [])[:]
 )
 
-if "cortex-m" in env.BoardConfig().get("build.cpu", ""):
-    board = env.subst("$BOARD")
-    math_lib = "arm_cortex%s_math"
-    if board in ("teensy35", "teensy36"):
-        math_lib = math_lib % "M4lf"
-    elif board in ("teensy30", "teensy31"):
-        math_lib = math_lib % "M4l"
-    elif board.startswith("teensy4"):
-        math_lib = math_lib % "M7lfsp"
-    else:
-        math_lib = math_lib % "M0l"
-
-    env.Prepend(LIBS=[math_lib])
+#if "cortex-m" in env.BoardConfig().get("build.cpu", ""):
+#    board = env.subst("$BOARD")
+#    math_lib = "arm_cortex%s_math"
+#    if board in ("teensy35", "teensy36"):
+#        math_lib = math_lib % "M4lf"
+#    elif board in ("teensy30", "teensy31"):
+#        math_lib = math_lib % "M4l"
+#    elif board.startswith("teensy4"):
+#        math_lib = math_lib % "M7lfsp"
+#    else:
+#        math_lib = math_lib % "M0l"
+#
+#    env.Prepend(LIBS=[math_lib])
 
 # Teensy 2.x Core
 if BUILD_CORE == "teensy":
-    env.Append(CPPPATH=[join(FRAMEWORK_DIR, "cores")])
+    env.Append(CPPPATH=[join(FRAMEWORK_DIR, ".")])
 
     # search relative includes in teensy directories
-    core_dir = join(FRAMEWORK_DIR, "cores", "teensy")
+    core_dir = join(FRAMEWORK_DIR, ".", "teensy")
     for item in sorted(listdir(core_dir)):
         file_path = join(core_dir, item)
         if not isfile(file_path):
@@ -302,7 +339,7 @@ if BUILD_CORE == "teensy":
         with open(file_path, "w", encoding="latin-1") as fp:
             fp.write(content)
 else:
-    env.Prepend(LIBPATH=[join(FRAMEWORK_DIR, "cores", BUILD_CORE)])
+    env.Prepend(LIBPATH=[join(FRAMEWORK_DIR, ".", BUILD_CORE)])
 
 #
 # Target: Build Core Library
@@ -324,7 +361,7 @@ if "build.variant" in env.BoardConfig():
 
 libs.append(env.BuildLibrary(
     join("$BUILD_DIR", "FrameworkArduino"),
-    join(FRAMEWORK_DIR, "cores", BUILD_CORE)
+    join(FRAMEWORK_DIR, ".", BUILD_CORE)
 ))
 
 env.Prepend(LIBS=libs)
