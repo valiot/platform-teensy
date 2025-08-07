@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/platformio/platform-teensy.git"
+    "url": "https://github.com/valiot/platform-teensy.git"
   },
   "version": "5.0.0",
   "frameworks": {
@@ -54,7 +54,7 @@
       "type": "framework",
       "optional": true,
       "owner": "platformio",
-      "version": "~1.159.0"
+      "version": "https://github.com/valiot/cores.git"
     },
     "framework-zephyr": {
       "type": "framework",
